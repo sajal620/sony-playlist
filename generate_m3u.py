@@ -4,20 +4,18 @@ import urllib.request
 JSON_URL = "https://raw.githubusercontent.com/vijay-iptv/JSON/refs/heads/main/sony.json"
 OUTPUT_FILE = "playlist.m3u"
 
-
 def fetch_json(url):
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     with urllib.request.urlopen(req) as response:
         return json.loads(response.read().decode("utf-8"))
 
-
 def generate_m3u(channels, output_file):
     lines = ["#EXTM3U"]
     count = 0
-
     for ch in channels:
         name = ch.get("channel_name", "Unknown")
         logo = ch.get("logoUrl", "")
+        # direct_url না থাকলে url ব্যবহার করবে
         stream = ch.get("direct_url", "") or ch.get("url", "")
         language = ch.get("channelLanguageId", "")
         category = ch.get("channelCategoryId", "Other")
@@ -29,7 +27,6 @@ def generate_m3u(channels, output_file):
             continue
 
         group = f"{language} - {category}"
-
         lines.append(
             f'#EXTINF:-1 tvg-id="{ch_id}" tvg-name="{name}" '
             f'tvg-logo="{logo}" group-title="{group}",{name} [{hd_tag}]'
@@ -41,15 +38,9 @@ def generate_m3u(channels, output_file):
         f.write("\n".join(lines))
 
     print(f"✅ Playlist তৈরি হয়েছে: {output_file}")
-    print(f"📺 মোট channel: {count}")
 
-
-def main():
+if __name__ == "__main__":
     print("⏳ JSON fetch করা হচ্ছে...")
     channels = fetch_json(JSON_URL)
     print(f"✅ {len(channels)} টি channel পাওয়া গেছে।")
     generate_m3u(channels, OUTPUT_FILE)
-
-
-if __name__ == "__main__":
-    main()
